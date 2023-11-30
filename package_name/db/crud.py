@@ -137,7 +137,13 @@ async def async_delete_type(session: AsyncSession, type_id: int):
     return False
 
 
-def create_content(session: Session, summary: str, content: str, tag_ids: list = None, type_ids: list = None):
+def create_content(
+    session: Session,
+    summary: str,
+    content: str,
+    tag_ids: list = None,
+    type_ids: list = None,
+):
     content_obj = Content(summary=summary, content=content)
 
     if tag_ids:
@@ -152,11 +158,20 @@ def create_content(session: Session, summary: str, content: str, tag_ids: list =
     session.commit()
     return content_obj
 
+
 def get_content(session: Session, content_id: int):
     result = session.execute(select(Content).filter(Content.id == content_id))
     return result.scalar()
 
-def update_content(session: Session, content_id: int, summary: str = None, content: str = None, tag_ids: list = None, type_ids: list = None):
+
+def update_content(
+    session: Session,
+    content_id: int,
+    summary: str = None,
+    content: str = None,
+    tag_ids: list = None,
+    type_ids: list = None,
+):
     content_obj = get_content(session, content_id)
 
     if content_obj:
@@ -177,6 +192,7 @@ def update_content(session: Session, content_id: int, summary: str = None, conte
         return content_obj
     return None
 
+
 def delete_content(session: Session, content_id: int):
     content_obj = get_content(session, content_id)
 
@@ -186,15 +202,18 @@ def delete_content(session: Session, content_id: int):
         return True
     return False
 
+
 def create_tag(session: Session, name: str):
     tag_obj = Tag(name=name)
     session.add(tag_obj)
     session.commit()
     return tag_obj
 
+
 def get_tag(session: Session, tag_id: int):
     result = session.execute(select(Tag).filter(Tag.id == tag_id))
     return result.scalar()
+
 
 def update_tag(session: Session, tag_id: int, name: str):
     tag_obj = get_tag(session, tag_id)
@@ -205,6 +224,7 @@ def update_tag(session: Session, tag_id: int, name: str):
         return tag_obj
     return None
 
+
 def delete_tag(session: Session, tag_id: int):
     tag_obj = get_tag(session, tag_id)
 
@@ -214,15 +234,18 @@ def delete_tag(session: Session, tag_id: int):
         return True
     return False
 
+
 def create_type(session: Session, name: str):
     type_obj = Type(name=name)
     session.add(type_obj)
     session.commit()
     return type_obj
 
+
 def get_type(session: Session, type_id: int):
     result = session.execute(select(Type).filter(Type.id == type_id))
     return result.scalar()
+
 
 def update_type(session: Session, type_id: int, name: str):
     type_obj = get_type(session, type_id)
@@ -232,6 +255,7 @@ def update_type(session: Session, type_id: int, name: str):
         session.commit()
         return type_obj
     return None
+
 
 def delete_type(session: Session, type_id: int):
     type_obj = get_type(session, type_id)
