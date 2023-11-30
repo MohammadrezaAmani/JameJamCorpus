@@ -40,14 +40,14 @@ class Content(BASE):
         "Tag",
         secondary=tags_association,
         back_populates="contents",
-        order_by="Tag.id", 
+        order_by="Tag.id",
     )
 
     types = relationship(
         "Type",
         secondary=types_association,
         back_populates="contents",
-        order_by="Type.id", 
+        order_by="Type.id",
     )
 
     def __init__(self, summary, content):
@@ -65,7 +65,7 @@ class Tag(BASE):
     id = Column(Integer, nullable=False, primary_key=True)
     name = Column(String(512), nullable=True)
 
-    contents = relationship( 
+    contents = relationship(
         "Content",
         secondary=tags_association,
         back_populates="tags",
@@ -77,7 +77,7 @@ class Type(BASE):
     id = Column(Integer, nullable=False, primary_key=True)
     name = Column(String(512), nullable=True)
 
-    contents = relationship( 
+    contents = relationship(
         "Content",
         secondary=types_association,
         back_populates="types",
