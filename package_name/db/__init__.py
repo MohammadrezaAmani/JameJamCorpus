@@ -1,4 +1,4 @@
-from package_name.db.tables import Content, Tag, Type
+from package_name.db.tables import Content, Tag, Type, create_tables
 from package_name.db.crud import (
     create_content,
     get_content,
@@ -18,6 +18,7 @@ __all__ = [
     "Content",
     "Tag",
     "Type",
+    "create_tables"
     "create_content",
     "get_content",
     "update_content",
