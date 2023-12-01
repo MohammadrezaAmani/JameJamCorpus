@@ -1,6 +1,5 @@
 from sqlalchemy import (
     Column,
-    DateTime,
     ForeignKey,
     Integer,
     String,
@@ -9,7 +8,6 @@ from sqlalchemy import (
 )
 
 from sqlalchemy.orm import declarative_base, relationship
-from datetime import datetime
 
 
 BASE = declarative_base()
@@ -31,11 +29,12 @@ types_association = Table(
 
 class Content(BASE):
     __tablename__ = "contents"
-    id = Column(Integer, nullable=False, primary_key=True)
+    pk = Column(Integer, primary_key=True)
+    id = Column(Integer, nullable=False)
+    title = Column(String(512), nullable=True)
     summary = Column(String(512), nullable=True)
     content = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
+    timestamp = Column(String(512), nullable=True)
     tags = relationship(
         "Tag",
         secondary=tags_association,
@@ -50,9 +49,12 @@ class Content(BASE):
         order_by="Type.id",
     )
 
-    def __init__(self, summary, content):
+    def __init__(self, id, title, summary, content, timestamp):
+        self.id = id
         self.summary = summary
         self.content = content
+        self.title = title
+        self.timestamp = timestamp
 
     def __repr__(self):
         return (
