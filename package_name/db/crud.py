@@ -1,35 +1,29 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
-
 from package_name.db.tables import create_tables
 from package_name.db.tables import Tag, Type, Content
+from package_name.db.tables import tags_association, types_association
 
 
 async def async_create_content(
     session: AsyncSession,
+    id: int,
+    title: str,
     summary: str,
     content: str,
+    timestamp: int,
     tag_ids: list = None,
     type_ids: list = None,
 ):
-    content_obj = Content(summary=summary, content=content)
-
-    if tag_ids:
-        tags = await session.execute(select(Tag).filter(Tag.id.in_(tag_ids)))
-        content_obj.tags.extend(tags.scalars().all())
-
-    if type_ids:
-        types = await session.execute(select(Type).filter(Type.id.in_(type_ids)))
-        content_obj.types.extend(types.scalars().all())
-
+    content_obj = Content(id=id, summary=summary, content=content)
     session.add(content_obj)
     await session.commit()
     return content_obj
 
 
 async def async_get_content(session: AsyncSession, content_id: int):
+    session = await session()
     result = await session.execute(select(Content).filter(Content.id == content_id))
     return result.scalar()
 
@@ -42,6 +36,7 @@ async def async_update_content(
     tag_ids: list = None,
     type_ids: list = None,
 ):
+    session = await session()
     content_obj = await async_get_content(session, content_id)
 
     if content_obj:
@@ -64,6 +59,7 @@ async def async_update_content(
 
 
 async def async_delete_content(session: AsyncSession, content_id: int):
+    session = await session()
     content_obj = await async_get_content(session, content_id)
 
     if content_obj:
@@ -74,6 +70,10 @@ async def async_delete_content(session: AsyncSession, content_id: int):
 
 
 async def async_create_tag(session: AsyncSession, name: str):
+    result = await session.execute(select(Tag).filter(Tag.name == name))
+    tag_obj = result.scalar()
+    if tag_obj:
+        return tag_obj
     tag_obj = Tag(name=name)
     session.add(tag_obj)
     await session.commit()
@@ -81,6 +81,7 @@ async def async_create_tag(session: AsyncSession, name: str):
 
 
 async def async_get_tag(session: AsyncSession, tag_id: int):
+    session = await session()
     result = await session.execute(select(Tag).filter(Tag.id == tag_id))
     return result.scalar()
 
@@ -105,7 +106,12 @@ async def async_delete_tag(session: AsyncSession, tag_id: int):
     return False
 
 
-async def async_create_type(session: AsyncSession, name: str):
+async def async_create_type(session, name: str):
+    # if already exists, return the existing one
+    result = await session.execute(select(Type).filter(Type.name == name))
+    type_obj = result.scalar()
+    if type_obj:
+        return type_obj
     type_obj = Type(name=name)
     session.add(type_obj)
     await session.commit()
@@ -135,6 +141,22 @@ async def async_delete_type(session: AsyncSession, type_id: int):
         await session.commit()
         return True
     return False
+
+
+async def async_tag_association(session: AsyncSession, content_id: int, tag_id: int):
+    session = await session()
+    await session.execute(
+        tags_association.insert().values(content_id=content_id, tag_id=tag_id)
+    )
+    await session.commit()
+
+
+async def async_type_association(session: AsyncSession, content_id: int, type_id: int):
+    session = await session()
+    await session.execute(
+        types_association.insert().values(content_id=content_id, type_id=type_id)
+    )
+    await session.commit()
 
 
 def create_content(
@@ -265,6 +287,20 @@ def delete_type(session: Session, type_id: int):
         session.commit()
         return True
     return False
+
+
+def tag_association(session: Session, content_id: int, tag_id: int):
+    session.execute(
+        tags_association.insert().values(content_id=content_id, tag_id=tag_id)
+    )
+    session.commit()
+
+
+def type_association(session: Session, content_id: int, type_id: int):
+    session.execute(
+        types_association.insert().values(content_id=content_id, type_id=type_id)
+    )
+    session.commit()
 
 
 async def main():
