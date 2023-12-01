@@ -7,15 +7,17 @@ from package_name.utils.save import add_to_db
 
 async def fetch_data(url: str):
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                text = await response.text()
-                data = extract_data(text)
-                data["id"] = url.split("/")[-1]
-                await add_to_db(data)
-            else:
-                raise Exception(f"Failed to fetch data from {url}: {response.status}")
-
+        try:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    text = await response.text()
+                    data = extract_data(text)
+                    data["id"] = url.split("/")[-1]
+                    await add_to_db(data)
+                else:
+                    raise Exception(f"Failed to fetch data from {url}: {response.status}")
+        except Exception as e:
+            print(e)
 
 async def main():
     base_url = BASE_URL
