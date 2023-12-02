@@ -1,0 +1,6 @@
+sqlalchemy
+aiohttp
+asyncio
+aiosqlite
+psycopg2-binary
+bs4
