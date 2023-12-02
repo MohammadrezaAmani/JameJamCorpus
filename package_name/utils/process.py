@@ -1,18 +1,61 @@
 import re
-from bs4 import BeautifulSoup
+from package_name.utils.clean import clean_html, convert_to_english_digits
 
 
+# ! change as needed for your project
 def find_title(input_text: str) -> str:
+    """
+    Find the title from the input text.
+
+    Args:
+        input_text (str): The input text containing HTML.
+
+    Returns:
+        str: The extracted title from the input text.
+
+    Raises:
+        IndexError: If the title cannot be found in the input text.
+
+    Example:
+        >>> input_text = '<html><head><meta itemprop="name" content="Example Title"></head></html>'
+        >>> find_title(input_text)
+        'Example Title'
+    """
     title = re.findall(r'<meta itemprop="name" content="(.*?)">', input_text)
-    return title[0].strip() if title else ""
+    return clean_html(title[0].strip()) if title else ""
 
 
 def find_summary(input_text: str) -> str:
+    """
+    Find the summary from the input text.
+
+    Args:
+        input_text (str): The input text containing HTML.
+
+    Returns:
+        str: The summary extracted from the input text.
+
+    Raises:
+        IndexError: If the summary is not found in the input text.
+
+    Example:
+        >>> find_summary('<meta itemprop="description" content="This is a summary">')
+        'This is a summary'
+    """
     summary = re.findall(r'<meta itemprop="description" content="(.*?)">', input_text)
-    return summary[0].strip() if summary else ""
+    return clean_html(summary[0].strip()) if summary else ""
 
 
 def find_content(input_text: str) -> str:
+    """
+    Find and extract content from HTML text.
+
+    Args:
+        input_text (str): The HTML text to search for content.
+
+    Returns:
+        str: The extracted content, cleaned of HTML tags and leading/trailing whitespace.
+    """
     content = re.findall(
         r'<div class="text-justify">(.*?)</div>', input_text, re.DOTALL
     )
@@ -23,59 +66,51 @@ def find_content(input_text: str) -> str:
         r'<section class="body">(.*?)</section>', input_text, re.DOTALL
     )
 
-    return "".join(content).strip() if content else ""
+    return clean_html("".join(content).strip()) if content else ""
 
 
 def find_tags(input_text: str) -> list:
+    """
+    Find tags in the input text.
+
+    Args:
+        input_text (str): The text to search for tags.
+
+    Returns:
+        list: A list of tags found in the input text.
+    """
     tags = re.findall(r'class="tag-item" target="_blank">(.*?)</a>', input_text)
     return tags if tags else []
 
 
 def find_types(input_text: str) -> list:
+    """
+    Find and extract types from the input text.
+
+    Args:
+        input_text (str): The input text to search for types.
+
+    Returns:
+        list: A list of extracted types.
+
+    """
     types = re.findall(r'<a class="service-name-news"(.*?)</a>', input_text)
     for i in range(len(types)):
         types[i] = types[i][types[i].find(">") + 1 :]
     return types if types else []
 
 
-def convert_to_english_digits(input_text: str) -> str:
-    input_text = input_text.strip()
-    month = {
-        "فروردین": "01",
-        "اردیبهشت": "02",
-        "خرداد": "03",
-        "تیر": "04",
-        "مرداد": "05",
-        "شهریور": "06",
-        "مهر": "07",
-        "آبان": "08",
-        "آذر": "09",
-        "دی": "10",
-        "بهمن": "11",
-        "اسفند": "12",
-    }
-    if input_text in month:
-        return month[input_text]
-    input_text = list(input_text)
-    dates = {
-        "۱": "1",
-        "۲": "2",
-        "۳": "3",
-        "۴": "4",
-        "۵": "5",
-        "۶": "6",
-        "۷": "7",
-        "۸": "8",
-        "۹": "9",
-        "۰": "0",
-    }
-    for i in range(len(input_text)):
-        if input_text[i] in dates.keys():
-            input_text[i] = dates[input_text[i]]
-    return "".join(input_text).strip()
-
-
 def find_timestamp(input_text: str) -> str:
+    """
+    Finds and returns the timestamp from the input text.
+
+    Args:
+        input_text (str): The input text containing the timestamp.
+
+    Returns:
+        str: The extracted timestamp.
+
+    """
     timestamp = re.findall(r'<span class="news-pdate">(.*?)</span>', input_text)
     timestamp = timestamp[0].strip() if timestamp else ""
     timestamp = timestamp.replace("&nbsp;", " ")
@@ -86,32 +121,22 @@ def find_timestamp(input_text: str) -> str:
     return timestamp
 
 
-def clean_html(input_html: str) -> str:
-    soup = BeautifulSoup(input_html, "html.parser")
-
-    for script in soup(["script", "style"]):
-        script.decompose()
-
-    for tag in soup():
-        if "src" in tag.attrs:
-            del tag["src"]
-
-    for media_tag in soup(["img", "audio", "video"]):
-        media_tag.decompose()
-
-    for svg_tag in soup("svg"):
-        svg_tag.decompose()
-    for svg_tag in soup("path"):
-        svg_tag.decompose()
-
-    cleaned_html = str(soup)
-    cleanr = re.compile("<.*?>")
-    cleaned_html = re.sub(cleanr, "", cleaned_html)
-
-    return cleaned_html.strip()
-
-
 def extract_data(input_text: str) -> dict:
+    """
+    Extracts data from the given input text.
+
+    Args:
+        input_text (str): The input text to extract data from.
+
+    Returns:
+        dict: A dictionary containing the extracted data with the following keys:
+            - "title": The title extracted from the input text.
+            - "summary": The summary extracted from the input text.
+            - "content": The content extracted from the input text.
+            - "tags": The tags extracted from the input text.
+            - "types": The types extracted from the input text.
+            - "timestamp": The timestamp extracted from the input text.
+    """
     title = find_title(input_text)
     summary = find_summary(input_text)
     content = find_content(input_text)
