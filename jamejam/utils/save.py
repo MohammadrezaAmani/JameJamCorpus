@@ -1,14 +1,14 @@
 import logging
-from package_name import get_session
-from package_name.config import DEBUG, START, END
-from package_name.db import (
+from jamejam import get_session
+from jamejam.config import DEBUG, START, END
+from jamejam.db import (
     async_create_content,
     async_type_association,
     async_tag_association,
     async_create_tag,
     async_create_type,
 )
-from package_name.db.crud import (
+from jamejam.db.crud import (
     get_contents,
     get_tags,
     get_types,
