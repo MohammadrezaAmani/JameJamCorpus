@@ -10,7 +10,7 @@ def convert_to_english_digits(input_text: str) -> str:
         "خرداد": "03",
         "تیر": "04",
         "مرداد": "05",
-        "شهریور": "06",
+        "شهريور": "06",
         "مهر": "07",
         "آبان": "08",
         "آذر": "09",
@@ -66,3 +66,12 @@ def clean_html(input_html: str) -> str:
     #     cleaned_html.encode("ascii", "ignore").decode("utf-8", "ignore").strip()
     # )
     return cleaned_html.strip()
+
+
+def clean_nonpersian(input_text: str) -> str:
+    input_text = list(input_text)
+    digits = "ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"
+    for i in range(len(input_text)):
+        if input_text[i] not in digits:
+            input_text[i] = ""
+    return "".join(input_text).strip()

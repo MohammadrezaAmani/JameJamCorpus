@@ -1,5 +1,10 @@
 import re
-from package_name.utils.clean import clean_html, convert_to_english_digits
+import jdatetime
+from package_name.utils.clean import (
+    clean_html,
+    convert_to_english_digits,
+    clean_nonpersian,
+)
 
 
 # ! change as needed for your project
@@ -80,7 +85,7 @@ def find_tags(input_text: str) -> list:
         list: A list of tags found in the input text.
     """
     tags = re.findall(r'class="tag-item" target="_blank">(.*?)</a>', input_text)
-    return tags if tags else []
+    return [clean_nonpersian(i) for i in tags] if tags else []
 
 
 def find_types(input_text: str) -> list:
@@ -97,7 +102,7 @@ def find_types(input_text: str) -> list:
     types = re.findall(r'<a class="service-name-news"(.*?)</a>', input_text)
     for i in range(len(types)):
         types[i] = types[i][types[i].find(">") + 1 :]
-    return types if types else []
+    return [clean_nonpersian(i) for i in types] if types else []
 
 
 def find_timestamp(input_text: str) -> str:
@@ -117,8 +122,16 @@ def find_timestamp(input_text: str) -> str:
     timestamp = timestamp.split(" ")
     for i in range(len(timestamp)):
         timestamp[i] = convert_to_english_digits(timestamp[i])
-
-    return timestamp
+    timestamp = str(
+        jdatetime.datetime(
+            year=int(timestamp[2]),
+            month=int(timestamp[1]),
+            day=int(timestamp[0]),
+            hour=int(timestamp[4].split(":")[0]),
+            minute=int(timestamp[4].split(":")[1]),
+        ).timestamp()
+    )
+    return str(timestamp)
 
 
 def extract_data(input_text: str) -> dict:

@@ -1,4 +1,4 @@
-from package_name.db.tables import Content, Tag, Type, create_tables
+from package_name.db.tables import Content, Tag, Type
 from package_name.db.crud import (
     async_create_content,
     async_create_tag,
@@ -46,7 +46,6 @@ __all__ = [
     "async_delete_type",
     "async_tag_association",
     "async_type_association",
-    "create_tables",
     "create_content",
     "get_content",
     "update_content",

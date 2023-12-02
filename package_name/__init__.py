@@ -1,46 +1,63 @@
 import asyncio
+import logging
+from sqlalchemy import NullPool
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from package_name import config
 from package_name.db.tables import BASE
+from sqlalchemy.engine import create_engine
 
+if config.DEBUG:
+    logging.basicConfig(level=logging.INFO)
 
 if config.DATABASE_URL.lower().startswith("sqlite"):
     engine = create_async_engine(
         config.DATABASE_URL,
-        pool_pre_ping=True,
-        echo=config.DEBUG,
+        echo=config.DATABASE_LOGGING,
         pool_recycle=3600,
         future=True,
+        poolclass=NullPool,
     )
+    sync_engine = create_engine(
+        config.DATABASE_URL,
+        echo=config.DATABASE_LOGGING,
+        pool_recycle=3600,
+        future=True,
+        poolclass=NullPool,
+    )
+
 else:
     engine = create_async_engine(
         config.DATABASE_URL,
-        pool_pre_ping=True,
         pool_size=30,
         max_overflow=30,
-        echo_pool=config.DEBUG,
-        echo=config.DEBUG,
+        echo_pool=True,
+        echo=config.DATABASE_LOGGING,
         pool_recycle=3600,
         future=True,
     )
-
-
-def session_factory():
-    return scoped_session(
-        sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    sync_engine = create_engine(
+        config.DATABASE_URL,
+        pool_size=30,
+        max_overflow=30,
+        echo_pool=True,
+        echo=config.DATABASE_LOGGING,
+        pool_recycle=3600,
     )
 
 
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(BASE.metadata.create_all)
+        logging.info("Database tables created")
 
 
 asyncio.run(init_db())
 
 
 def get_session():
-    yield session_factory()
+    yield AsyncSession(engine, expire_on_commit=False)
+
+
+def get_sync_session():
+    return sessionmaker(sync_engine)()

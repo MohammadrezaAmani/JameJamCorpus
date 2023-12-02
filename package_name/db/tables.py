@@ -80,6 +80,7 @@ class Tag(BASE):
     """
     Represents a tag in the database.
     """
+
     __tablename__ = "tags"
     id = Column(Integer, nullable=False, primary_key=True)
     name = Column(String(512), nullable=True)
@@ -89,6 +90,12 @@ class Tag(BASE):
         secondary=tags_association,
         back_populates="tags",
     )
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name={self.name!r})"
 
 
 class Type(BASE):
@@ -105,3 +112,9 @@ class Type(BASE):
         secondary=types_association,
         back_populates="types",
     )
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name={self.name!r})"

@@ -1,7 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import select
-from package_name.db.tables import create_tables
+from sqlalchemy.sql import select, desc, asc
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from package_name import config
 from package_name.db.tables import Tag, Type, Content
 from package_name.db.tables import tags_association, types_association
 
@@ -264,6 +266,55 @@ def get_type(session: Session, type_id: int):
     return result.scalar()
 
 
+async def get_types(session: Session):
+    result = await session.execute(select(Type))
+    return result.scalars().all()
+
+
+async def get_tags(session: Session):
+    result = await session.execute(select(Tag))
+    return result.scalars().all()
+
+
+async def get_contents(
+    session: Session,
+    start: int = 0,
+    end: int = None,
+    sort_by: str = "id",
+    sort_order: str = "asc",
+):
+    result = await session.execute(
+        select(Content)
+        .order_by(
+            asc(getattr(Content, sort_by))
+            if sort_order == "asc"
+            else desc(getattr(Content, sort_by))
+        )
+        .offset(start)
+        .limit(end)
+    )
+    for row in result:
+        yield row
+
+
+async def get_tags_by_content(session: Session, content_id: int):
+    result = await session.execute(
+        select(Tag)
+        .join(tags_association)
+        .filter(tags_association.c.content_id == content_id)
+    )
+    return result.scalars().all()
+
+
+async def get_types_by_content(session: Session, content_id: int):
+    result = await session.execute(
+        select(Type)
+        .join(types_association)
+        .filter(types_association.c.content_id == content_id)
+    )
+    return result.scalars().all()
+
+
 def update_type(session: Session, type_id: int, name: str):
     type_obj = get_type(session, type_id)
 
@@ -298,20 +349,45 @@ def type_association(session: Session, content_id: int, type_id: int):
     session.commit()
 
 
-async def main():
-    from sqlalchemy.ext.asyncio import create_async_engine
-    from sqlalchemy.orm import sessionmaker
+def remove_duplicates():
+    def get_items(session, model):
+        result = session.execute(select(model).order_by(getattr(model, "id").desc()))
+        return result.scalars().all()
 
-    engine = create_async_engine("sqlite+aiosqlite:///data.db", echo=True, future=True)
-    async with engine.begin() as conn:
-        await conn.run_sync(create_tables)
-    async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-    async with async_session() as session:
-        await async_create_content(session, "summary1", "content1", [1, 2], [1, 2])
-        await async_create_content(session, "summary2", "content2", [2, 3], [2, 3])
+    database_url = config.DATABASE_URL.replace("+asyncpg", "+psycopg2")
+    database_url = database_url.replace("+aiosqlite", "")
+    engine = create_engine(database_url)
 
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-if __name__ == "__main__":
-    import asyncio
+    def solve_duplicates(session):
+        handle_duplicates(session, Tag, tags_association, "tag_id")
+        handle_duplicates(session, Type, types_association, "type_id")
 
-    asyncio.run(main())
+    def handle_duplicates(session, model, association_table, column_name):
+        items = get_items(session, model)
+        for item in items:
+            result = session.execute(
+                select(model)
+                .filter(getattr(model, "name") == item.name)
+                .order_by(getattr(model, "id").desc())
+            )
+            data = list(result.scalars().all())
+            if len(data) > 1:
+                for item in data[1:]:
+                    session.execute(
+                        association_table.update()
+                        .where(getattr(association_table.c, column_name) == item.id)
+                        .values({column_name: data[0].id})
+                    )
+                for item in data[1:]:
+                    session.delete(item)
+                session.commit()
+
+                session.commit()
+            else:
+                ...
+
+    solve_duplicates(session)
+    session.close()
