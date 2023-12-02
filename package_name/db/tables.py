@@ -28,9 +28,23 @@ types_association = Table(
 
 
 class Content(BASE):
+    """
+    Represents a content object in the database.
+
+    Attributes:
+        pk (int): The primary key of the content.
+        id (int): The unique identifier of the content.
+        title (str): The title of the content.
+        summary (str): The summary of the content.
+        content (str): The full content.
+        timestamp (str): The timestamp of when the content was created.
+        tags (list): The list of tags associated with the content.
+        types (list): The list of types associated with the content.
+    """
+
     __tablename__ = "contents"
-    pk = Column(Integer, primary_key=True)
-    id = Column(Integer, nullable=False)
+    pk = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    id = Column(Integer, nullable=False, unique=True)
     title = Column(String(512), nullable=True)
     summary = Column(String(512), nullable=True)
     content = Column(Text, nullable=True)
@@ -63,6 +77,9 @@ class Content(BASE):
 
 
 class Tag(BASE):
+    """
+    Represents a tag in the database.
+    """
     __tablename__ = "tags"
     id = Column(Integer, nullable=False, primary_key=True)
     name = Column(String(512), nullable=True)
@@ -75,6 +92,10 @@ class Tag(BASE):
 
 
 class Type(BASE):
+    """
+    Represents a type in the database.
+    """
+
     __tablename__ = "types"
     id = Column(Integer, nullable=False, primary_key=True)
     name = Column(String(512), nullable=True)
@@ -84,8 +105,3 @@ class Type(BASE):
         secondary=types_association,
         back_populates="types",
     )
-
-
-def create_tables(engine):
-    BASE.metadata.bind = engine
-    BASE.metadata.create_all(engine, checkfirst=True)
