@@ -1,8 +1,8 @@
 import asyncio
 import logging
-from package_name.scrap import main
-from package_name.utils.save import to_file
-from package_name.db.crud import remove_duplicates
+from jamejam.scrap import main
+from jamejam.utils.save import to_file
+from jamejam.db.crud import remove_duplicates
 
 if __name__ == "__main__":
     logging.info("GET DATA...")
