@@ -14,16 +14,19 @@ if config.DATABASE_URL.lower().startswith("sqlite"):
     engine = create_async_engine(
         config.DATABASE_URL,
         echo=config.DATABASE_LOGGING,
-        pool_recycle=3600,
+        # pool_recycle=3600,
         future=True,
         poolclass=NullPool,
+        connect_args={"timeout": 30},
     )
     sync_engine = create_engine(
         config.DATABASE_URL,
         echo=config.DATABASE_LOGGING,
-        pool_recycle=3600,
+        # pool_recycle=3600,
         future=True,
         poolclass=NullPool,
+        connect_args={"timeout": 30},
+
     )
 
 else:

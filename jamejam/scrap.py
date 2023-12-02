@@ -12,6 +12,7 @@ if DEBUG:
 
 
 async def fetch_data(url: str, semaphore: asyncio.Semaphore):
+    count = 0
     async with semaphore:
         async with aiohttp.ClientSession() as session:
             try:
@@ -32,6 +33,28 @@ async def fetch_data(url: str, semaphore: asyncio.Semaphore):
                     logging.error(
                         f"Failed to fetch data from {url.split('/')[-1]}: {str(e)[:60 if len(str(e)) > 60 else len(str(e))]}"
                     )
+                while count < 5:
+                    count += 1
+                    try:
+                        async with session.get(url) as response:
+                            if response.status == 200:
+                                text = await response.text()
+                                data = extract_data(text)
+                                data["id"] = int(url.split("/")[-1])
+                                await add_to_db(data)
+                                if DEBUG:
+                                    logging.info(f"Data fetched from {url}")
+                            else:
+                                raise Exception(
+                                    f"Failed to fetch data from {url}: {response.status}"
+                                )
+                        break
+                    except Exception as e:
+                        if DEBUG:
+                            logging.error(
+                                f"Failed to fetch data from {url.split('/')[-1]}: {str(e)[:60 if len(str(e)) > 60 else len(str(e))]}"
+                            )
+
 
 
 def synchronous_fetch_data(url, semaphore):
@@ -42,13 +65,15 @@ async def main():
     urls = prepare_urls(BASE_URL, START, END)
     semaphore = asyncio.Semaphore(MAX_CALLS_PER_SECOND)
 
-    with ProcessPoolExecutor() as executor:
-        tasks = [
-            executor.submit(synchronous_fetch_data, url, semaphore) for url in urls
-        ]
-        for task in tasks:
-            task.result()
+    # with ProcessPoolExecutor(30) as executor:
+    #     tasks = [
+    #         executor.submit(synchronous_fetch_data, url, semaphore) for url in urls
+    #     ]
+    #     for task in tasks:
+    #         task.result()
 
-
+    tasks = [fetch_data(url, semaphore) for url in urls]
+    await asyncio.gather(*tasks)
+    
 if __name__ == "__main__":
     asyncio.run(main())
