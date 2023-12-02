@@ -13,17 +13,18 @@ async def async_create_content(
     summary: str,
     content: str,
     timestamp: int,
-    tag_ids: list = None,
-    type_ids: list = None,
+    tags: list = None,
+    types: list = None,
 ):
-    content_obj = Content(id=id, summary=summary, content=content)
+    content_obj = Content(
+        id=id, summary=summary, content=content, timestamp=timestamp, title=title
+    )
     session.add(content_obj)
     await session.commit()
     return content_obj
 
 
 async def async_get_content(session: AsyncSession, content_id: int):
-    session = await session()
     result = await session.execute(select(Content).filter(Content.id == content_id))
     return result.scalar()
 
@@ -36,7 +37,6 @@ async def async_update_content(
     tag_ids: list = None,
     type_ids: list = None,
 ):
-    session = await session()
     content_obj = await async_get_content(session, content_id)
 
     if content_obj:
@@ -59,7 +59,6 @@ async def async_update_content(
 
 
 async def async_delete_content(session: AsyncSession, content_id: int):
-    session = await session()
     content_obj = await async_get_content(session, content_id)
 
     if content_obj:
@@ -81,7 +80,6 @@ async def async_create_tag(session: AsyncSession, name: str):
 
 
 async def async_get_tag(session: AsyncSession, tag_id: int):
-    session = await session()
     result = await session.execute(select(Tag).filter(Tag.id == tag_id))
     return result.scalar()
 
@@ -107,7 +105,6 @@ async def async_delete_tag(session: AsyncSession, tag_id: int):
 
 
 async def async_create_type(session, name: str):
-    # if already exists, return the existing one
     result = await session.execute(select(Type).filter(Type.name == name))
     type_obj = result.scalar()
     if type_obj:
@@ -144,7 +141,6 @@ async def async_delete_type(session: AsyncSession, type_id: int):
 
 
 async def async_tag_association(session: AsyncSession, content_id: int, tag_id: int):
-    session = await session()
     await session.execute(
         tags_association.insert().values(content_id=content_id, tag_id=tag_id)
     )
@@ -152,7 +148,6 @@ async def async_tag_association(session: AsyncSession, content_id: int, tag_id: 
 
 
 async def async_type_association(session: AsyncSession, content_id: int, type_id: int):
-    session = await session()
     await session.execute(
         types_association.insert().values(content_id=content_id, type_id=type_id)
     )
