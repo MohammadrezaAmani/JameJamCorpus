@@ -160,3 +160,12 @@ cython_debug/
 #.idea/
 *.db
 ___*
+tempCodeRunnerFile.py
+*.csv
+*.xlsx
+*.xls
+*.docx
+*.psql
+*.dump
+*.sql
+*.sqlite
