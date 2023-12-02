@@ -1,7 +1,9 @@
+By [Mohammadreza Amani](https://github.com/MohammadrezaAmani) and [Mobina Afshari](https://github.com/Mobina-Afshari/) for [AbrLabs](https://github.com/AbrLabs). ☁️🌖
+
 
 <p align="center">
     <a>
-        <img src="./assets/images/jamejam.svg" alt="dataset_image" width="360">
+        <img src="./assets/images/jamejam.svg" alt="dataset_image" width="640">
     </a>
     <br>
     <b>A universe of information within your fingertips. </b>
