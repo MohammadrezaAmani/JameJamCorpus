@@ -1,7 +1,9 @@
 import asyncio
 import aiohttp
 import logging
+import time
 from concurrent.futures import ProcessPoolExecutor
+from jamejam import STARTTIME
 from jamejam.utils.url import prepare_urls
 from jamejam.utils.process import extract_data
 from jamejam.utils.save import add_to_db
@@ -13,6 +15,7 @@ if DEBUG:
 
 async def fetch_data(url: str, semaphore: asyncio.Semaphore):
     count = 0
+    id = int(url.split("/")[-1])
     async with semaphore:
         async with aiohttp.ClientSession() as session:
             try:
@@ -20,10 +23,12 @@ async def fetch_data(url: str, semaphore: asyncio.Semaphore):
                     if response.status == 200:
                         text = await response.text()
                         data = extract_data(text)
-                        data["id"] = int(url.split("/")[-1])
+                        data["id"] = id 
                         await add_to_db(data)
                         if DEBUG:
-                            logging.info(f"Data fetched from {url}")
+                            speed = (id-START+1)/(STARTTIME-time.time())
+                            remaining = (END + START - id-1)/speed 
+                            logging.info(f"Data fetched from {url}, {id}/{END} remaining: {remaining}, {speed} p/s")
                     else:
                         raise Exception(
                             f"Failed to fetch data from {url}: {response.status}"
@@ -31,7 +36,7 @@ async def fetch_data(url: str, semaphore: asyncio.Semaphore):
             except Exception as e:
                 if DEBUG:
                     logging.error(
-                        f"Failed to fetch data from {url.split('/')[-1]}: {str(e)[:60 if len(str(e)) > 60 else len(str(e))]}"
+                        f"Failed to fetch data from {id}: {str(e)[:60 if len(str(e)) > 60 else len(str(e))]}"
                     )
                 while count < 5:
                     count += 1

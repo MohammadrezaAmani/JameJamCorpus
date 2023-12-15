@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from sqlalchemy import NullPool
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -64,3 +65,6 @@ def get_session():
 
 def get_sync_session():
     return sessionmaker(sync_engine)()
+
+
+STARTTIME = time.time()
