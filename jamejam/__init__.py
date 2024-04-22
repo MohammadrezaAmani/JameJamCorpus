@@ -1,12 +1,14 @@
 import asyncio
 import logging
 import time
+
 from sqlalchemy import NullPool
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+
 from jamejam import config
 from jamejam.db.tables import BASE
-from sqlalchemy.engine import create_engine
 
 if config.DEBUG:
     logging.basicConfig(level=logging.INFO)
@@ -27,7 +29,6 @@ if config.DATABASE_URL.lower().startswith("sqlite"):
         future=True,
         poolclass=NullPool,
         connect_args={"timeout": 30},
-
     )
 
 else:

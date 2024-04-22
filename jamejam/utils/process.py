@@ -1,10 +1,8 @@
 import re
+
 import jdatetime
-from jamejam.utils.clean import (
-    clean_html,
-    convert_to_english_digits,
-    clean_nonpersian,
-)
+
+from jamejam.utils.clean import clean_html, clean_nonpersian, convert_to_english_digits
 
 
 # ! change as needed for your project

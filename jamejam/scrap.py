@@ -1,13 +1,14 @@
 import asyncio
-import aiohttp
 import logging
 import time
-from concurrent.futures import ProcessPoolExecutor
+
+import aiohttp
+
 from jamejam import STARTTIME
-from jamejam.utils.url import prepare_urls
+from jamejam.config import BASE_URL, DEBUG, END, MAX_CALLS_PER_SECOND, START
 from jamejam.utils.process import extract_data
 from jamejam.utils.save import add_to_db
-from jamejam.config import START, END, BASE_URL, MAX_CALLS_PER_SECOND, DEBUG
+from jamejam.utils.url import prepare_urls
 
 if DEBUG:
     logging.basicConfig(level=logging.INFO)
@@ -23,12 +24,14 @@ async def fetch_data(url: str, semaphore: asyncio.Semaphore):
                     if response.status == 200:
                         text = await response.text()
                         data = extract_data(text)
-                        data["id"] = id 
+                        data["id"] = id
                         await add_to_db(data)
                         if DEBUG:
-                            speed = (id-START+1)/(STARTTIME-time.time())
-                            remaining = (END + START - id-1)/speed 
-                            logging.info(f"Data fetched from {url}, {id}/{END} remaining: {remaining}, {speed} p/s")
+                            speed = (id - START + 1) / (STARTTIME - time.time())
+                            remaining = (END + START - id - 1) / speed
+                            logging.info(
+                                f"Data fetched from {url}, {id}/{END} remaining: {remaining}, {speed} p/s"
+                            )
                     else:
                         raise Exception(
                             f"Failed to fetch data from {url}: {response.status}"
@@ -61,7 +64,6 @@ async def fetch_data(url: str, semaphore: asyncio.Semaphore):
                             )
 
 
-
 def synchronous_fetch_data(url, semaphore):
     return asyncio.run(fetch_data(url, semaphore))
 
@@ -79,6 +81,7 @@ async def main():
 
     tasks = [fetch_data(url, semaphore) for url in urls]
     await asyncio.gather(*tasks)
-    
+
+
 if __name__ == "__main__":
     asyncio.run(main())

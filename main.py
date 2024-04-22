@@ -1,9 +1,11 @@
 import asyncio
 import logging
+import time
+
+from jamejam.db.crud import remove_duplicates
 from jamejam.scrap import main
 from jamejam.utils.save import to_file
-from jamejam.db.crud import remove_duplicates
-import time
+
 start = time.time()
 if __name__ == "__main__":
     logging.info("GET DATA...")
