@@ -62,16 +62,15 @@ In addition to the dataset, we have developed a powerful NLP model for classifyi
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-
 ## Dataset Formats
 
 The dataset is available in various formats to cater to different needs:
 
-- SQLite: [Link to SQLite dump file](link/to/sqlite/dump)
-- PostgreSQL: [Link to PostgreSQL dump file](link/to/psql/dump)
-- CSV: [Link to CSV file](link/to/csv/file)
-- TSV: [Link to TSV file](link/to/tsv/file)
-- XLSX: [Link to XLSX file](link/to/xlsx/file)
+- SQLite: [Link to SQLite dump file](./datasets/sqlite/dataset.sqlite)
+- PostgreSQL: [Link to PostgreSQL dump file](./datasets/psql/dataset.dump)
+- CSV: [Link to CSV file](./datasets/csv/dataset.csv)
+- TSV: [Link to TSV file](./datasets/tsv/dataset.tsv)
+- XLSX: [Link to XLSX file](./datasets/xlsx/dataset.xlsx)
 
 Feel free to choose the format that best suits your requirements.
 
@@ -80,15 +79,18 @@ Feel free to choose the format that best suits your requirements.
 We have developed a state-of-the-art NLP model for classifying news articles. The model can predict the type and tags of a news article, making it a valuable tool for various applications.
 
 ## <a name='Requirements'></a>Requirements
+
 ### <a name='Python-Compatibility'></a>**Python Compatibility**
 This bot is written entirely in python. tested versions are `python 3.11`, `3.10`, `3.9`, `3.8`, `3.7` while older versions should not cause any problem, we recommend using the latest version of `python3`.
 
 ### <a name='Dependencies'></a>**Dependencies**
+
 This package requires the following packages:
+
 * [AsyncIO](https://docs.python.org/3/library/asyncio.html "AsyncIO HomePage") - asyncio is a library to write concurrent code using the async/await syntax.
 * [AIOHTTP](https://docs.aiohttp.org/en/stable/ "AIOHTTP HomePage") - Asynchronous HTTP Client/Server for `asyncio` and Python.
 * [SQLAlchemy](https://www.sqlalchemy.org/ "SQLAlchemy Github") - SQLAlchemy is the Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL.
-* [BS4](https://www.crummy.com/software/BeautifulSoup/ "BeautifulSoup HomePage") - a Python library designed for quick turnaround projects like screen-scraping. 
+* [BS4](https://www.crummy.com/software/BeautifulSoup/ "BeautifulSoup HomePage") - a Python library designed for quick turnaround projects like screen-scraping.
 * [Psycopg](https://www.psycopg.org/ "SQLAlchemy Github") - Psycopg is the most popular `PostgreSQL` adapter for the Python programming language
 * [aiosqlite](https://github.com/omnilib/aiosqlite "AIOSQLite Github") - asyncio bridge to the standard `sqlite3` module
   
@@ -96,6 +98,7 @@ This package requires the following packages:
 ## <a name='Instructions'></a>Instructions
 
 ### <a name='Scrap data'></a>Scrap data
+
 Before you begin, ensure you have the following installed:
 
 - `Python` (version `3.11.5`)
@@ -104,7 +107,7 @@ Before you begin, ensure you have the following installed:
 #### Clone the Repository
 
 ```bash
-git clone https://github.com/AbrLabs/JameJamCorpus
+git clone https://github.com/MohammadrezaAmani/JameJamCorpus
 cd JameJamCorpus
 ```
 
@@ -169,20 +172,21 @@ python main.py
 This will start the application, and you should see the output in the console.
 
 ## <a name='Key-Features'></a>Key Features
+
 Some of the key feature are listed below. For more information, please refer to the Documentation.
+
 * **Modular** - Highly modular and can be easily extended.
 * **Easy to Use** - Easy to customize the interface and messages.
 * **Diverse** - Can be used for a wide range of purposes.
-
 * **Fast** - Build with the fastest performing asynchronus libraries to achieve high performance.
 
 ## <a name='License'></a>License
-This project is licensed under the [GPL-3 License](link/to/license).
 
+This project is licensed under the [GPL-3 License](./datasets/license).
 
 ## Citation
 
-```
+```bibtex
 @article{
     title={name of my article},
     author={Mohammadreza Amani, Mobina Afshari},
@@ -190,18 +194,17 @@ This project is licensed under the [GPL-3 License](link/to/license).
     year={2023}
 }
 ```
-## How to Contribute?
-We welcome contributions to enhance the dataset and improve the NLP model. If you have suggestions, bug reports, or want to contribute code, please follow the guidelines in [CONTRIBUTING.md](link/to/contributing/file).
 
+## How to Contribute?
+
+We welcome contributions to enhance the dataset and improve the NLP model. If you have suggestions, bug reports, or want to contribute code, please follow the guidelines in [CONTRIBUTING.md](./datasets/contributing/file).
 
 ## Acknowledgments
 
 We would like to express our gratitude to the [Jam-e Jam Online](https://jamejamonline.ir) website for providing valuable news content for this dataset.
-
 
 ## Contact
 
 The `Jam-e Jam` dataset is free to the academic community for research purpose usage only.
 
 For any questions about this dataset please contact the authors by sending email to and [more.amani@yahoo.com](mailto:more.amani@yahoo.com) and [mobina.afshari@aut.ac.ir](mailto:mobina.afshari@aut.ac.ir).
-
